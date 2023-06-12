@@ -1,13 +1,19 @@
 package tofu.controller.PaymentController;
 
 import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.CustomerCollection;
 import com.stripe.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tofu.domain.*;
 import tofu.service.paymentservice.IPaymentService;
+import tofu.util.StripeUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.nonNull;
 
@@ -17,6 +23,8 @@ public class PaymentController {
 
     @Autowired
     IPaymentService paymentService;
+    @Autowired
+    StripeUtil stripeUtil;
 
    // verifying the card
 
@@ -50,13 +58,26 @@ public class PaymentController {
 
         return null;
     }
-    // retrieving customers subscription
+    // retrieving customers subscription by id
     @GetMapping("/{customerId}")
-        public Subscription getCustomerSubscriptions(@PathVariable("customerId") String customerId) throws StripeException {
-        try {
-            return paymentService.getCustomerSubscriptions(customerId);
-        } catch (StripeException e) {
-            throw new RuntimeException(e);
+      public UserData getCustomer(@PathVariable("customerId") String id) throws StripeException {
+        return stripeUtil.getCustomer(id);
+    }
+    @RequestMapping("/getAllCustomer")
+    public List<UserData> getAllCustomer() throws StripeException {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("limit", 3);
+
+        CustomerCollection customers = Customer.list(params);
+        List<UserData> allCustomer = new ArrayList<UserData>();
+        for (int i = 0; i < customers.getData().size(); i++) {
+            UserData customerData = new UserData();
+            customerData.setCustomerId(customers.getData().get(i).getId());
+            customerData.setName(customers.getData().get(i).getName());
+            customerData.setEmail(customers.getData().get(i).getEmail());
+            allCustomer.add(customerData);
         }
+        return allCustomer;
     }
 }

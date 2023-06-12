@@ -1,17 +1,13 @@
 package tofu.service.paymentservice;
 
 
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tofu.domain.*;
@@ -25,7 +21,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class PaymentService implements IPaymentService {
+public class PaymentService implements IPaymentService{
 
     @Value("${secret_stripe_apikey}")
     private String stripeApiKey;
@@ -35,8 +31,7 @@ public class PaymentService implements IPaymentService {
 
         Stripe.apiKey = stripeApiKey;
     }
-        @Autowired
-        private Gson gson;
+
 
 
     @Override
@@ -215,15 +210,13 @@ public class PaymentService implements IPaymentService {
 
         return null;
     }
-  /// still in progress
+
     @Override
-    public Subscription getCustomerSubscriptions(String subscriptionId) throws StripeException {
-            gson = new Gson();
-        return Subscription.retrieve(gson.toJson(subscriptionId));
-
-
-
+    public Subscription getCustomerSubscriptions(String customerId) throws StripeException {
+        return null;
     }
+    /// still in progress
+
 }
 
 
