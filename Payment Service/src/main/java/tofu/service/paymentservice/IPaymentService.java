@@ -1,9 +1,17 @@
 package tofu.service.paymentservice;
 
-import tofu.domain.Payment;
+
+import com.stripe.exception.StripeException;
+import com.stripe.model.Subscription;
+import tofu.domain.*;
 
 import java.util.List;
 
 public interface IPaymentService {
-    List<Payment> getPaymentHistory(Long userId);
+    //Payment getPaymentHistory(Long userId);
+   // StripeToken createCardToken(StripeToken stripeToken);
+   // StripePayment charge(StripePayment chargeRequest);
+    SubscriptionResponse createSubscription(StripeSubscription stripeSubscription);
+    Subscription cancelSubscription(String subscriptionId) throws StripeException;
+      void upgradeSubscription(String subscriptionId, String planId) throws StripeException;
 }
