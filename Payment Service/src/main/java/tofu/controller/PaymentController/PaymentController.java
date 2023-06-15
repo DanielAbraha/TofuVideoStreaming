@@ -28,18 +28,18 @@ public class PaymentController {
 
    // verifying the card
 
-    @PostMapping("/card")
-    public StripeToken createCardToken(@RequestBody StripeToken stripeToken) {
-
-        return paymentService.createCardToken(stripeToken);
-    }
-
-       // processing payment
-    @PostMapping("/charge")
-    public StripePayment charge(@RequestBody StripePayment payment) {
-
-        return paymentService.charge(payment);
-    }
+//    @PostMapping("/card")
+//    public StripeToken createCardToken(@RequestBody StripeToken stripeToken) {
+//
+//        return paymentService.createCardToken(stripeToken);
+//    }
+//
+//       // processing payment
+//    @PostMapping("/charge")
+//    public StripePayment charge(@RequestBody StripePayment payment) {
+//
+//        return paymentService.charge(payment);
+//    }
     // creating new subscription
     @PostMapping("/new")
     public SubscriptionResponse subscription(@RequestBody StripeSubscription subscription) {
@@ -79,5 +79,10 @@ public class PaymentController {
             allCustomer.add(customerData);
         }
         return allCustomer;
+    }
+
+    @PutMapping("/update/{subscriptionId}")
+    public void updateSubscription(@PathVariable("subscriptionId") String subscriptionId,@RequestParam String orderId) throws StripeException {
+         paymentService.upgradeSubscription(subscriptionId,orderId);
     }
 }

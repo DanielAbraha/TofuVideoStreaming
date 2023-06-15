@@ -13,9 +13,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Document
 public class UserData {
-    public String name;
-    public String email;
-    public String customerId;
+
+    private Long id;
+    private String name;
+    private String email;
+    private String customerId;
 
 
 }

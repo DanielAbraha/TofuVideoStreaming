@@ -4,6 +4,7 @@ package tofu.service.paymentservice;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
+import com.stripe.param.SubscriptionCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,61 +35,61 @@ public class PaymentService implements IPaymentService{
 
 
 
-    @Override
-    /**
-     * tokenization is the process Stripe uses to collect sensitive card or
-     * BankAccount details,or personal identifiable information(PII),directly from customers in a secure manner.*/
-    public StripeToken createCardToken(StripeToken stripeToken) {
-        try {
-            Map<String, Object> card = new HashMap<>();
-            card.put("number", stripeToken.getCardNumber());
-            card.put("exp_month", Integer.parseInt(stripeToken.getExpMonth()));
-            card.put("exp_year", Integer.parseInt(stripeToken.getExpYear()));
-            card.put("cvc", stripeToken.getCvc());
-            Map<String, Object> params = new HashMap<>();
-            params.put("card", card);
-            Token token = Token.create(params);
-            if (token != null && token.getId() != null) {
-                stripeToken.setSuccess(true);
-                stripeToken.setToken(token.getId());
-            }
-            return stripeToken;
-        } catch (StripeException e) {
-            log.error("StripeService (createCardToken)", e);
-            throw new RuntimeException(e.getMessage());
-        }
-
-    }
-
-
-    @Override
-    public StripePayment charge(StripePayment chargeRequest) {
-        try {
-            chargeRequest.setSuccess(false);
-            Map<String, Object> chargeParams = new HashMap<>();
-            chargeParams.put("amount", (int) (chargeRequest.getAmount() * 100));
-            chargeParams.put("currency", "USD");
-            chargeParams.put("description", "Payment for id " + chargeRequest.getAdditionalInfo().getOrDefault("ID_TAG", ""));
-            chargeParams.put("source", chargeRequest.getStripeToken());
-            Map<String, Object> metaData = new HashMap<>();
-            metaData.put("id", chargeRequest.getChargeId());
-            metaData.putAll(chargeRequest.getAdditionalInfo());
-            chargeParams.put("metadata", metaData);
-            Charge charge = Charge.create(chargeParams);
-            chargeRequest.setMessage(charge.getOutcome().getSellerMessage());
-
-            if (charge.getPaid()) {
-                chargeRequest.setChargeId(charge.getId());
-                chargeRequest.setSuccess(true);
-
-            }
-            return chargeRequest;
-        } catch (StripeException e) {
-            log.error("StripeService (charge)", e);
-            throw new RuntimeException(e.getMessage());
-        }
-
-    }
+//    @Override
+//    /**
+//     * tokenization is the process Stripe uses to collect sensitive card or
+//     * BankAccount details,or personal identifiable information(PII),directly from customers in a secure manner.*/
+//    public StripeToken createCardToken(StripeToken stripeToken) {
+//        try {
+//            Map<String, Object> card = new HashMap<>();
+//            card.put("number", stripeToken.getCardNumber());
+//            card.put("exp_month", Integer.parseInt(stripeToken.getExpMonth()));
+//            card.put("exp_year", Integer.parseInt(stripeToken.getExpYear()));
+//            card.put("cvc", stripeToken.getCvc());
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("card", card);
+//            Token token = Token.create(params);
+//            if (token != null && token.getId() != null) {
+//                stripeToken.setSuccess(true);
+//                stripeToken.setToken(token.getId());
+//            }
+//            return stripeToken;
+//        } catch (StripeException e) {
+//            log.error("StripeService (createCardToken)", e);
+//            throw new RuntimeException(e.getMessage());
+//        }
+//
+//    }
+//
+//
+//    @Override
+//    public StripePayment charge(StripePayment chargeRequest) {
+//        try {
+//            chargeRequest.setSuccess(false);
+//            Map<String, Object> chargeParams = new HashMap<>();
+//            chargeParams.put("amount", (int) (chargeRequest.getAmount() * 100));
+//            chargeParams.put("currency", "USD");
+//            chargeParams.put("description", "Payment for id " + chargeRequest.getAdditionalInfo().getOrDefault("ID_TAG", ""));
+//            chargeParams.put("source", chargeRequest.getStripeToken());
+//            Map<String, Object> metaData = new HashMap<>();
+//            metaData.put("id", chargeRequest.getChargeId());
+//            metaData.putAll(chargeRequest.getAdditionalInfo());
+//            chargeParams.put("metadata", metaData);
+//            Charge charge = Charge.create(chargeParams);
+//            chargeRequest.setMessage(charge.getOutcome().getSellerMessage());
+//
+//            if (charge.getPaid()) {
+//                chargeRequest.setChargeId(charge.getId());
+//                chargeRequest.setSuccess(true);
+//
+//            }
+//            return chargeRequest;
+//        } catch (StripeException e) {
+//            log.error("StripeService (charge)", e);
+//            throw new RuntimeException(e.getMessage());
+//        }
+//
+//    }
 
 
     @Override
@@ -212,10 +213,23 @@ public class PaymentService implements IPaymentService{
     }
 
     @Override
-    public Subscription getCustomerSubscriptions(String customerId) throws StripeException {
-        return null;
+    public void upgradeSubscription(String subscriptionId, String orderId) throws StripeException {
+
+        Subscription subscription = Subscription.retrieve(subscriptionId);
+        // Create a new HashMap to store metadata
+        Map<String,Object> metadata = new HashMap<>();
+        metadata.put("planId",orderId);
+
+        // Create a new HashMap to store parameters for updating the subscription
+         Map<String,Object> params = new HashMap<>();
+         params.put("metadata",metadata);
+
+        // Update the subscription with the new metadata
+            subscription.update(params);
+
+
     }
-    /// still in progress
+
 
 }
 
